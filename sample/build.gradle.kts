@@ -9,20 +9,21 @@ group = "com.mimao.kmp.videoplayer"
 version = "1.0"
 
 kotlin {
-    ios()
+    // ios()
     android()
     jvm("desktop") {
         compilations.all {
-            kotlinOptions.jvmTarget = "17"
+            kotlinOptions.jvmTarget = "11"
         }
     }
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
-                implementation(compose.ui)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
+                api(compose.ui)
+                api(compose.runtime)
+                api(compose.foundation)
+                api(project(":core-lib"))
             }
         }
 
@@ -30,20 +31,10 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.4.1")
                 api("androidx.core:core-ktx:1.7.0")
-                implementation("com.google.android.exoplayer:exoplayer:2.18.0")
-                implementation("com.google.android.exoplayer:extension-okhttp:2.18.0")
             }
         }
-        val desktopMain by getting {
-            dependencies {
-                implementation("uk.co.caprica:vlcj:4.7.1")
-            }
-        }
-        val iosMain by getting {
-            dependencies {
-                implementation("uk.co.caprica:vlcj:4.7.1")
-            }
-        }
+        val desktopMain by getting
+        // val iosMain by getting
     }
 }
 

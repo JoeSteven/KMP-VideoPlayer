@@ -1,8 +1,10 @@
 package com.mimao.kmp.videoplayer
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 expect class KVideoPlayer{
-    fun setDataSource(dataSource: Any)
+    fun setDataSource(dataSource: Any, playWhenReady: Boolean = true)
     fun play()
     fun pause()
     fun stop()
@@ -24,6 +26,9 @@ expect class KVideoPlayer{
         progress: Boolean = false,
         error: Boolean = false,
     )
+
+    @Composable
+    fun Content(modifier: Modifier)
 }
 
 enum class KPlayerState{

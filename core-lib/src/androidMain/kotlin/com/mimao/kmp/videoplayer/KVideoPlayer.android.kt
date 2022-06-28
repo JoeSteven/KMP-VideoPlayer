@@ -1,5 +1,8 @@
 package com.mimao.kmp.videoplayer
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
@@ -22,40 +25,41 @@ actual class KVideoPlayer(
     private var errorCallback: OnPlayerError? = null
     private var countingJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Main)
+    private val listener = object : Player.Listener {
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            when (playbackState) {
+                Player.STATE_IDLE -> stateCallback?.invoke(KPlayerState.Idle)
+                Player.STATE_BUFFERING -> stateCallback?.invoke(KPlayerState.Buffering)
+                Player.STATE_READY -> stateCallback?.invoke(KPlayerState.Ready)
+                else -> {}
+            }
+        }
 
-    actual fun setDataSource(dataSource: Any) {
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            stateCallback?.invoke(if (isPlaying) KPlayerState.Playing else KPlayerState.Paused)
+            countingJob?.cancel()
+            if (isPlaying) {
+                countingJob = scope.launch {
+                    while (true) {
+                        delay(1000)
+                        progressCallback?.invoke(player.player?.currentPosition ?:0)
+                    }
+                }
+            }
+        }
+
+        override fun onPlayerError(error: PlaybackException) {
+            errorCallback?.invoke(error)
+        }
+    }
+
+    actual fun setDataSource(dataSource: Any, playWhenReady: Boolean) {
         player.apply {
+            player?.release()
             player = ExoPlayer.Builder(context)
                 .build()
                 .apply {
-                    addListener(object : Player.Listener {
-                        override fun onPlaybackStateChanged(playbackState: Int) {
-                            when (playbackState) {
-                                Player.STATE_IDLE -> stateCallback?.invoke(KPlayerState.Idle)
-                                Player.STATE_BUFFERING -> stateCallback?.invoke(KPlayerState.Buffering)
-                                Player.STATE_READY -> stateCallback?.invoke(KPlayerState.Ready)
-                                else -> {}
-                            }
-                        }
-
-                        override fun onIsPlayingChanged(isPlaying: Boolean) {
-                            stateCallback?.invoke(if (isPlaying) KPlayerState.Playing else KPlayerState.Paused)
-                            countingJob?.cancel()
-                            if (isPlaying) {
-                                countingJob = scope.launch {
-                                    while (true) {
-                                        delay(1000)
-                                        progressCallback?.invoke(player.currentPosition)
-                                    }
-                                }
-                            }
-                        }
-
-                        override fun onPlayerError(error: PlaybackException) {
-                            errorCallback?.invoke(error)
-                        }
-                    })
-
+                    addListener(listener)
                     ProgressiveMediaSource.Factory(
                         // TODO set cache size
                         CacheDataSource.Factory()
@@ -63,6 +67,7 @@ actual class KVideoPlayer(
                         setMediaSource(it)
                     }
                     stateCallback?.invoke(KPlayerState.Preparing)
+                    setPlayWhenReady(playWhenReady)
                     prepare()
                 }
         }
@@ -126,5 +131,15 @@ actual class KVideoPlayer(
         if (state) this.stateCallback = null
         if (progress) this.progressCallback = null
         if (error) this.errorCallback = null
+    }
+
+    @Composable
+    actual fun Content(modifier: Modifier) {
+        AndroidView(
+            factory = {
+                player
+            },
+            modifier = modifier
+        )
     }
 }

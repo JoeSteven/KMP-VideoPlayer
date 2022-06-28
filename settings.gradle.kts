@@ -10,9 +10,7 @@ pluginManagement {
 }
 rootProject.name = "KMP-VideoPlayer"
 
-
+include(":core-lib")
+include(":sample")
 include(":android")
 include(":desktop")
-include(":core-lib")
-
-include(":compose")

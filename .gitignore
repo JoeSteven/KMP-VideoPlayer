@@ -87,7 +87,8 @@ lint/tmp/
 # Android Profiling
 *.hprof
 
-/.idea
+*/.idea
+.idea/
 
 signing.properties
 

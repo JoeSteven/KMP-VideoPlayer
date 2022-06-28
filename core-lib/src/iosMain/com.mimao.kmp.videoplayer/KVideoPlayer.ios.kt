@@ -1,72 +1,55 @@
 package com.mimao.kmp.videoplayer
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
-import androidx.compose.ui.graphics.Color
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
-import java.awt.Component
 import java.util.*
 
 actual class KVideoPlayer {
-    private val component: Component = if (isMacOS()) {
+    private val player = if (isMacOS()) {
         CallbackMediaPlayerComponent()
     } else {
         EmbeddedMediaPlayerComponent()
-    }
-    private val player = component.mediaPlayer()
+    }.mediaPlayer()
 
     private var stateCallback: OnPlayerStateChanged? = null
     private var progressCallback: OnProgressChanged? = null
     private var errorCallback: OnPlayerError? = null
-    private val eventAdapter = object : MediaPlayerEventAdapter() {
-        override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {
-            stateCallback?.invoke(KPlayerState.Buffering)
-        }
-
-        override fun playing(mediaPlayer: MediaPlayer?) {
-            stateCallback?.invoke(KPlayerState.Playing)
-        }
-
-        override fun paused(mediaPlayer: MediaPlayer?) {
-            stateCallback?.invoke(KPlayerState.Paused)
-        }
-
-        override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {
-            stateCallback?.invoke(KPlayerState.Ready)
-        }
-
-        override fun timeChanged(mediaPlayer: MediaPlayer?, newTime: Long) {
-            progressCallback?.invoke(newTime)
-        }
-
-        override fun error(mediaPlayer: MediaPlayer?) {
-            errorCallback?.invoke(
-                Error(
-                    "Failed to load media ${
-                        mediaPlayer?.media()?.info()?.mrl()
-                    }"
-                )
-            )
-        }
-    }
-
-    actual fun setDataSource(dataSource: Any, playWhenReady: Boolean) {
+    actual fun setDataSource(dataSource: Any) {
         stateCallback?.invoke(KPlayerState.Idle)
-        player.events().addMediaPlayerEventListener(eventAdapter)
+        player.events().addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
+            override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {
+                stateCallback?.invoke(KPlayerState.Buffering)
+            }
+
+            override fun playing(mediaPlayer: MediaPlayer?) {
+                stateCallback?.invoke(KPlayerState.Playing)
+            }
+
+            override fun paused(mediaPlayer: MediaPlayer?) {
+                stateCallback?.invoke(KPlayerState.Paused)
+            }
+
+            override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {
+                stateCallback?.invoke(KPlayerState.Ready)
+            }
+
+            override fun timeChanged(mediaPlayer: MediaPlayer?, newTime: Long) {
+                progressCallback?.invoke(newTime)
+            }
+
+            override fun error(mediaPlayer: MediaPlayer?) {
+                errorCallback?.invoke(Error("Failed to load media ${mediaPlayer?.media()?.info()?.mrl()}"))
+            }
+        })
         stateCallback?.invoke(KPlayerState.Preparing)
-        if (playWhenReady) {
-            player.media().play(dataSource.toString())
-        } else {
-            player.media().prepare(dataSource.toString())
-        }
+        player.media().prepare(dataSource.toString())
     }
 
     actual fun play() {
         player.controls().play()
+
     }
 
     actual fun pause() {
@@ -79,7 +62,8 @@ actual class KVideoPlayer {
 
     actual fun release() {
         player.release()
-        unRegisterCallback(state = true, progress = true, error = true)
+        progressCallback = null
+        stateCallback = null
     }
 
     actual fun seekTo(position: Long) {
@@ -102,6 +86,7 @@ actual class KVideoPlayer {
         return player.status().time()
     }
 
+
     actual fun registerCallback(
         state: OnPlayerStateChanged?,
         progress: OnProgressChanged?,
@@ -117,9 +102,9 @@ actual class KVideoPlayer {
         progress: Boolean,
         error: Boolean,
     ) {
-        if (state) this.stateCallback = {  }
-        if (progress) this.progressCallback = {  }
-        if (error) this.errorCallback = {  }
+        if (state) this.stateCallback = null
+        if (progress) this.progressCallback = null
+        if (error) this.errorCallback = null
     }
 
     @Composable
