@@ -1,89 +1,48 @@
 package com.mimao.kmp.videoplayer
 
-import uk.co.caprica.vlcj.player.base.MediaPlayer
-import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
-import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
-import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
-import java.util.*
-
 actual class KVideoPlayer {
-    private val player = if (isMacOS()) {
-        CallbackMediaPlayerComponent()
-    } else {
-        EmbeddedMediaPlayerComponent()
-    }.mediaPlayer()
-
     private var stateCallback: OnPlayerStateChanged? = null
     private var progressCallback: OnProgressChanged? = null
     private var errorCallback: OnPlayerError? = null
-    actual fun setDataSource(dataSource: Any) {
-        stateCallback?.invoke(KPlayerState.Idle)
-        player.events().addMediaPlayerEventListener(object : MediaPlayerEventAdapter() {
-            override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {
-                stateCallback?.invoke(KPlayerState.Buffering)
-            }
-
-            override fun playing(mediaPlayer: MediaPlayer?) {
-                stateCallback?.invoke(KPlayerState.Playing)
-            }
-
-            override fun paused(mediaPlayer: MediaPlayer?) {
-                stateCallback?.invoke(KPlayerState.Paused)
-            }
-
-            override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {
-                stateCallback?.invoke(KPlayerState.Ready)
-            }
-
-            override fun timeChanged(mediaPlayer: MediaPlayer?, newTime: Long) {
-                progressCallback?.invoke(newTime)
-            }
-
-            override fun error(mediaPlayer: MediaPlayer?) {
-                errorCallback?.invoke(Error("Failed to load media ${mediaPlayer?.media()?.info()?.mrl()}"))
-            }
-        })
-        stateCallback?.invoke(KPlayerState.Preparing)
-        player.media().prepare(dataSource.toString())
+    actual fun setDataSource(dataSource: Any, playWhenReady: Boolean) {
+        TODO("not implemented")
     }
 
     actual fun play() {
-        player.controls().play()
+        TODO("not implemented")
 
     }
 
     actual fun pause() {
-        player.controls().pause()
+        TODO("not implemented")
     }
 
     actual fun stop() {
-        player.controls().stop()
+        TODO("not implemented")
     }
 
     actual fun release() {
-        player.release()
-        progressCallback = null
-        stateCallback = null
+        TODO("not implemented")
     }
 
     actual fun seekTo(position: Long) {
-        player.controls()?.setTime(position)
+        TODO("not implemented")
     }
 
     actual fun setMute(mute: Boolean) {
-        player.media()
+        TODO("not implemented")
     }
 
     actual fun setVolume(volume: Float) {
-        player.audio().setVolume(volume.toInt())
+        TODO("not implemented")
     }
 
     actual fun duration(): Long {
-        return player.status().length()
+        TODO("not implemented")
     }
 
     actual fun currentPosition(): Long {
-        return player.status().time()
+        TODO("not implemented")
     }
 
 
@@ -109,25 +68,6 @@ actual class KVideoPlayer {
 
     @Composable
     actual fun Content(modifier: Modifier) {
-        SwingPanel(
-            modifier = modifier,
-            factory = {
-                component
-            },
-            background = Color.Transparent
-        )
+        TODO("not implemented")
     }
-}
-
-private fun Any.mediaPlayer(): MediaPlayer {
-    return when (this) {
-        is CallbackMediaPlayerComponent -> mediaPlayer()
-        is EmbeddedMediaPlayerComponent -> mediaPlayer()
-        else -> throw IllegalArgumentException("You can only call mediaPlayer() on vlcj player component")
-    }
-}
-
-private fun isMacOS(): Boolean {
-    val os = System.getProperty("os.name", "generic").lowercase(Locale.ENGLISH)
-    return os.indexOf("mac") >= 0 || os.indexOf("darwin") >= 0
 }

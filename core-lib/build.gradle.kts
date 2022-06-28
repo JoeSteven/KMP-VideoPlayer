@@ -2,7 +2,7 @@ import org.jetbrains.compose.compose
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.2.0-alpha01-dev709"
+    id("org.jetbrains.compose") version "1.2.0-alpha01-dev716"
 }
 
 group = "com.mimao.kmp.videoplayer"
@@ -10,6 +10,8 @@ version = "1.0"
 
 kotlin {
     ios()
+    iosX64()
+    iosArm64()
     android()
     jvm("desktop") {
         compilations.all {
@@ -39,9 +41,11 @@ kotlin {
         }
         val iosMain by getting {
             dependencies {
-                implementation("uk.co.caprica:vlcj:4.7.1")
+                dependsOn(commonMain)
             }
         }
+        val iosArm64Main by getting
+        val iosX64Main by getting
     }
 }
 

@@ -8,9 +8,19 @@ pluginManagement {
     }
     
 }
+
+@Suppress("UnstableApiUsage")
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    }
+}
 rootProject.name = "KMP-VideoPlayer"
 
 include(":core-lib")
-include(":sample")
-include(":android")
-include(":desktop")
+include(":app:shared",":app:android", "app:desktop", "app:ios" )
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

@@ -1,17 +1,8 @@
-buildscript {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
-        classpath("com.android.tools.build:gradle:7.2.1")
-    }
+plugins {
+    id("com.android.application").apply(false)
+    id("com.android.library").apply(false)
+    kotlin("android").apply(false)
 }
-
-group = "com.mimao.kmp.videoplayer"
-version = "1.0"
 
 allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -25,29 +16,9 @@ allprojects {
             )
         }
     }
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    }
-}
-
-subprojects {
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            // ./gradlew assembleRelease -Pmyapp.enableComposeCompilerReports=true --rerun-tasks
-            if (project.findProperty("myapp.enableComposeCompilerReports") == "true") {
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" +
-                            project.buildDir.absolutePath + "/compose_metrics"
-                )
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-P",
-                    "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" +
-                            project.buildDir.absolutePath + "/compose_metrics"
-                )
-            }
-        }
-    }
+    // repositories {
+    //     google()
+    //     mavenCentral()
+    //     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    // }
 }

@@ -2,7 +2,8 @@ import org.jetbrains.compose.compose
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.2.0-alpha01-dev709"
+    id("org.jetbrains.compose") version "1.2.0-alpha01-dev716"
+    kotlin("native.cocoapods")
 }
 
 group = "com.mimao.kmp.videoplayer"
@@ -16,6 +17,19 @@ kotlin {
             kotlinOptions.jvmTarget = "11"
         }
     }
+    ios()
+    iosX64()
+    iosArm64()
+    cocoapods {
+        summary = "Some description for the Shared Module"
+        homepage = "Link to the Shared Module homepage"
+        ios.deploymentTarget = "14.1"
+        podfile = project.file("../iosApp/Podfile")
+        framework {
+            baseName = "sample"
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -34,7 +48,9 @@ kotlin {
             }
         }
         val desktopMain by getting
-        // val iosMain by getting
+        val iosMain by sourceSets.getting
+        val iosArm64Main by sourceSets.getting
+        val iosX64Main by sourceSets.getting
     }
 }
 

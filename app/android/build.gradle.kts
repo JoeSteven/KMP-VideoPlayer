@@ -7,12 +7,8 @@ plugins {
 group = "me.mimao"
 version = "1.0"
 
-repositories {
-    jcenter()
-}
-
 dependencies {
-    implementation(project(":sample"))
+    implementation(projects.app.shared)
     implementation("androidx.activity:activity-compose:1.4.0")
 }
 
