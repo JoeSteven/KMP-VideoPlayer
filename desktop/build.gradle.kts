@@ -29,7 +29,7 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "com.mimao.sample.MainKt"
+        mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.mimao.sample.MainKt"

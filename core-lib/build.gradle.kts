@@ -28,8 +28,6 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.4.1")
-                api("androidx.core:core-ktx:1.7.0")
                 implementation("com.google.android.exoplayer:exoplayer:2.18.0")
                 implementation("com.google.android.exoplayer:extension-okhttp:2.18.0")
             }

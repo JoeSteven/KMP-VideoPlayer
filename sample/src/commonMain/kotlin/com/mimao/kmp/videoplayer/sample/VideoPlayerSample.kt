@@ -10,7 +10,7 @@ import com.mimao.kmp.videoplayer.rememberKVideoPlayer
 @Composable
 fun VideoPlayer() {
     val player = rememberKVideoPlayer().apply {
-        setDataSource(dataSource = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
+        setDataSource(dataSource = "https://www.w3schools.com/html/movie.mp4")
     }
     Column {
         player.Content(modifier = Modifier.fillMaxWidth().aspectRatio(0.6f))

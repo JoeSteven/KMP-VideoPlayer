@@ -1,5 +1,6 @@
 package com.mimao.kmp.videoplayer
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -9,7 +10,9 @@ import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
+import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,9 +20,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 actual class KVideoPlayer(
-    playerView: StyledPlayerView,
+    context: Context,
 ) {
-    private val player = playerView
+    private val player = StyledPlayerView(context).apply {
+        useController = false
+    }
     private var stateCallback: OnPlayerStateChanged? = null
     private var progressCallback: OnProgressChanged? = null
     private var errorCallback: OnPlayerError? = null
@@ -49,6 +54,7 @@ actual class KVideoPlayer(
         }
 
         override fun onPlayerError(error: PlaybackException) {
+            error.printStackTrace()
             errorCallback?.invoke(error)
         }
     }
@@ -60,14 +66,9 @@ actual class KVideoPlayer(
                 .build()
                 .apply {
                     addListener(listener)
-                    ProgressiveMediaSource.Factory(
-                        // TODO set cache size
-                        CacheDataSource.Factory()
-                    ).createMediaSource(MediaItem.fromUri(dataSource as String)).also {
-                        setMediaSource(it)
-                    }
+                    setMediaItem(MediaItem.fromUri(dataSource as String))
                     stateCallback?.invoke(KPlayerState.Preparing)
-                    setPlayWhenReady(playWhenReady)
+                    this.playWhenReady = playWhenReady
                     prepare()
                 }
         }
