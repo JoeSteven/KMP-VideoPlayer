@@ -12,10 +12,18 @@ expect class KVideoPlayer{
     fun setVolume(volume: Float)
     fun duration(): Long
     fun currentPosition(): Long
-    fun registerStateCallback(callback: OnPlayerStateChanged)
-    fun unregisterStateCallback(callback: OnPlayerStateChanged)
-    fun registerProgressCallback(callback: OnProgressChanged)
-    fun unregisterProgressCallback(callback: OnProgressChanged)
+
+    fun registerCallback(
+        state: OnPlayerStateChanged? = null,
+        progress: OnProgressChanged? = null,
+        error: OnPlayerError? = null,
+    )
+
+    fun unRegisterCallback(
+        state: Boolean = false,
+        progress: Boolean = false,
+        error: Boolean = false,
+    )
 }
 
 enum class KPlayerState{
@@ -27,6 +35,6 @@ enum class KPlayerState{
     Paused,
 }
 
-
+typealias OnPlayerError = (error: Throwable) -> Unit
 typealias OnPlayerStateChanged = (KPlayerState) -> Unit
 typealias OnProgressChanged = (Long) -> Unit

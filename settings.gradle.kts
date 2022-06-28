@@ -15,3 +15,4 @@ include(":android")
 include(":desktop")
 include(":core-lib")
 
+include(":compose")

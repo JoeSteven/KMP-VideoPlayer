@@ -1,8 +1,8 @@
 package com.mimao.kmp.videoplayer
 
-import android.content.Context
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.StyledPlayerView
@@ -13,12 +13,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-actual class KVideoPlayer private constructor(
-    context: Context,
+actual class KVideoPlayer(
+    playerView: StyledPlayerView,
 ) {
-    private val player = StyledPlayerView(context)
+    private val player = playerView
     private var stateCallback: OnPlayerStateChanged? = null
     private var progressCallback: OnProgressChanged? = null
+    private var errorCallback: OnPlayerError? = null
     private var countingJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Main)
 
@@ -27,9 +28,9 @@ actual class KVideoPlayer private constructor(
             player = ExoPlayer.Builder(context)
                 .build()
                 .apply {
-                    addListener(object : Player.Listener{
+                    addListener(object : Player.Listener {
                         override fun onPlaybackStateChanged(playbackState: Int) {
-                            when(playbackState) {
+                            when (playbackState) {
                                 Player.STATE_IDLE -> stateCallback?.invoke(KPlayerState.Idle)
                                 Player.STATE_BUFFERING -> stateCallback?.invoke(KPlayerState.Buffering)
                                 Player.STATE_READY -> stateCallback?.invoke(KPlayerState.Ready)
@@ -42,12 +43,16 @@ actual class KVideoPlayer private constructor(
                             countingJob?.cancel()
                             if (isPlaying) {
                                 countingJob = scope.launch {
-                                    while(true) {
+                                    while (true) {
                                         delay(1000)
                                         progressCallback?.invoke(player.currentPosition)
                                     }
                                 }
                             }
+                        }
+
+                        override fun onPlayerError(error: PlaybackException) {
+                            errorCallback?.invoke(error)
                         }
                     })
 
@@ -80,8 +85,7 @@ actual class KVideoPlayer private constructor(
     actual fun release() {
         countingJob?.cancel()
         player.player?.release()
-        progressCallback = null
-        stateCallback = null
+        unRegisterCallback(state = true, progress = true, error = true)
     }
 
     actual fun seekTo(position: Long) {
@@ -97,26 +101,30 @@ actual class KVideoPlayer private constructor(
     }
 
     actual fun duration(): Long {
-       return player.player?.duration ?: -1
+        return player.player?.duration ?: -1
     }
 
     actual fun currentPosition(): Long {
         return player.player?.currentPosition ?: -1
     }
 
-    actual fun registerStateCallback(callback: OnPlayerStateChanged) {
-        stateCallback = callback
+    actual fun registerCallback(
+        state: OnPlayerStateChanged?,
+        progress: OnProgressChanged?,
+        error: OnPlayerError?,
+    ) {
+        state?.let { this.stateCallback = it }
+        progress?.let { this.progressCallback = it }
+        error?.let { this.errorCallback = it }
     }
 
-    actual fun unregisterStateCallback(callback: OnPlayerStateChanged) {
-        stateCallback = null
-    }
-
-    actual fun registerProgressCallback(callback: OnProgressChanged) {
-        progressCallback = callback
-    }
-
-    actual fun unregisterProgressCallback(callback: OnProgressChanged) {
-        progressCallback = null
+    actual fun unRegisterCallback(
+        state: Boolean,
+        progress: Boolean,
+        error: Boolean,
+    ) {
+        if (state) this.stateCallback = null
+        if (progress) this.progressCallback = null
+        if (error) this.errorCallback = null
     }
 }
