@@ -21,13 +21,13 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                implementation("com.google.android.exoplayer:exoplayer:2.18.0")
-                implementation("com.google.android.exoplayer:extension-okhttp:2.18.0")
+                api("com.google.android.exoplayer:exoplayer:2.18.0")
+                api("com.google.android.exoplayer:extension-okhttp:2.18.0")
             }
         }
         val desktopMain by getting {
             dependencies {
-                implementation("uk.co.caprica:vlcj:4.7.1")
+                api("uk.co.caprica:vlcj:4.7.1")
             }
         }
 
@@ -42,11 +42,11 @@ kotlin {
 }
 
 android {
-    compileSdkVersion(31)
+    compileSdk = 31
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdkVersion(24)
-        targetSdkVersion(31)
+        minSdk = 24
+        targetSdk = 31
     }
     compileOptions {
         sourceCompatibility = Versions.Java.java

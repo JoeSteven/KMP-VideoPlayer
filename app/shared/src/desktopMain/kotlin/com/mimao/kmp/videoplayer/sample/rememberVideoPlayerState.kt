@@ -2,22 +2,23 @@ package com.mimao.kmp.videoplayer.sample
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.exoplayer2.ui.StyledPlayerView
+import androidx.compose.ui.awt.SwingPanel
+import androidx.compose.ui.graphics.Color
 import com.mimao.kmp.videoplayer.KVideoPlayer
+import com.mimao.kmp.videoplayer.defaultComponent
+import java.awt.Component
 
 @Composable
 actual fun rememberVideoPlayerState(): VideoPlayerState {
-    val context = LocalContext.current
     return remember {
-        val view = StyledPlayerView(context)
+        val component = defaultComponent()
         VideoPlayerState(
-            player = KVideoPlayer(view),
+            player = KVideoPlayer(component),
             content = {
-                AndroidView(
+                SwingPanel(
+                    background = Color.Transparent,
                     factory = {
-                        view
+                        component as Component
                     },
                     modifier = it
                 )

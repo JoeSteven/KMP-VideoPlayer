@@ -28,8 +28,18 @@ kotlin {
             }
         }
 
-        val androidMain by getting
-        val desktopMain by getting
+        val androidMain by getting {
+            dependencies {
+                api("androidx.appcompat:appcompat:1.4.2")
+                api("androidx.core:core-ktx:1.8.0")
+                api("androidx.compose.material3:material3:${Versions.android_material3}")
+            }
+        }
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.material)
+            }
+        }
         val iosMain by sourceSets.getting
         val iosArm64Main by sourceSets.getting
         val iosX64Main by sourceSets.getting
@@ -37,11 +47,11 @@ kotlin {
 }
 
 android {
-    compileSdkVersion(31)
+    compileSdk = 32
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdkVersion(24)
-        targetSdkVersion(31)
+        minSdk = 24
+        targetSdk = 32
     }
     compileOptions {
         sourceCompatibility = Versions.Java.java

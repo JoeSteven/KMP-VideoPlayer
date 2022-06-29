@@ -123,7 +123,7 @@ private fun Any.mediaPlayer(): MediaPlayer {
     }
 }
 
-fun KVideoPlayer.defaultComponent() = if (isMacOS()) {
+fun defaultComponent():MediaPlayerComponent = if (isMacOS()) {
         CallbackMediaPlayerComponent()
     } else {
         EmbeddedMediaPlayerComponent()

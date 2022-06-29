@@ -3,19 +3,19 @@ package com.mimao.kmp.videoplayer.sample
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import com.mimao.kmp.videoplayer.KVideoPlayer
 
 @Composable
-fun VideoPlayer() {
-    // val (player, videoLayout )= rememberVideoPlayerState()
-    //
-    // player.setDataSource("https://www.w3schools.com/html/movie.mp4")
-    // Column {
-    //     videoLayout.invoke(Modifier.fillMaxWidth().aspectRatio(0.6f))
-    // }
+fun App() {
+    val (player, videoLayout )= rememberVideoPlayerState()
+    LaunchedEffect(player) {
+        player.setDataSource("https://www.w3schools.com/html/movie.mp4")
+    }
+    Column {
+        videoLayout.invoke(Modifier.fillMaxWidth().aspectRatio(0.6f))
+    }
 }
 
 
