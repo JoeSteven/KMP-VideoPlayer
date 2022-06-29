@@ -7,7 +7,7 @@ plugins {
 allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "17"
+            jvmTarget = Versions.Java.jvmTarget
             // allWarningsAsErrors = true
             freeCompilerArgs = freeCompilerArgs + listOf(
                 "-opt-in=kotlin.RequiresOptIn",
@@ -16,9 +16,4 @@ allprojects {
             )
         }
     }
-    // repositories {
-    //     google()
-    //     mavenCentral()
-    //     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    // }
 }

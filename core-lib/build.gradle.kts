@@ -3,16 +3,13 @@ plugins {
     id("com.android.library")
 }
 
-group = "com.mimao.kmp.videoplayer"
-version = "1.0"
-
 kotlin {
     iosX64()
     iosArm64()
     android()
     jvm("desktop") {
         compilations.all {
-            kotlinOptions.jvmTarget = "17"
+            kotlinOptions.jvmTarget = Versions.Java.jvmTarget
         }
     }
     sourceSets {
@@ -52,7 +49,7 @@ android {
         targetSdkVersion(31)
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = Versions.Java.java
+        targetCompatibility = Versions.Java.java
     }
 }

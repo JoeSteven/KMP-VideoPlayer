@@ -2,17 +2,14 @@ import org.jetbrains.compose.compose
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("org.jetbrains.compose") version "1.2.0-alpha01-dev716"
+    id("org.jetbrains.compose") version Versions.compose
 }
-
-group = "com.mimao.kmp.videoplayer"
-version = "1.0"
 
 kotlin {
     android()
     jvm("desktop") {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            kotlinOptions.jvmTarget = Versions.Java.jvmTarget
         }
     }
     ios()
@@ -26,16 +23,12 @@ kotlin {
                 api(compose.ui)
                 api(compose.runtime)
                 api(compose.foundation)
+                api(compose.material)
                 api(project(":core-lib"))
             }
         }
 
-        val androidMain by getting {
-            dependencies {
-                api("androidx.appcompat:appcompat:1.4.1")
-                api("androidx.core:core-ktx:1.7.0")
-            }
-        }
+        val androidMain by getting
         val desktopMain by getting
         val iosMain by sourceSets.getting
         val iosArm64Main by sourceSets.getting
@@ -51,7 +44,7 @@ android {
         targetSdkVersion(31)
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = Versions.Java.java
+        targetCompatibility = Versions.Java.java
     }
 }

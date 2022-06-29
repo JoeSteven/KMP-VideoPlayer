@@ -3,7 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.2.0-alpha01-dev709"
+    id("org.jetbrains.compose") version Versions.compose
 }
 
 group = "me.mimao"
@@ -12,7 +12,7 @@ version = "1.0"
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "17"
+            kotlinOptions.jvmTarget = Versions.Java.jvmTarget
         }
         withJava()
     }

@@ -3,6 +3,7 @@ package com.mimao.kmp.videoplayer.sample
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mimao.kmp.videoplayer.KVideoPlayer

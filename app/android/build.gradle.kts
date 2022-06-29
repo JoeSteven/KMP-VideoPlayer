@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.compose") version "1.2.0-alpha01-dev709"
+    id("org.jetbrains.compose") version Versions.compose
     id("com.android.application")
     kotlin("android")
 }
@@ -22,8 +22,8 @@ android {
         versionName = "1.0"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = Versions.Java.java
+        targetCompatibility = Versions.Java.java
     }
     buildTypes {
         getByName("release") {
