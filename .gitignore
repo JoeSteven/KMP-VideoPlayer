@@ -95,3 +95,6 @@ signing.properties
 *.jks
 
 .DS_Store
+
+*.xcodeproj/
+plists/

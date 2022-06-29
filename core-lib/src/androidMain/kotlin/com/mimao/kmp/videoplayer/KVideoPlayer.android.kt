@@ -1,18 +1,10 @@
 package com.mimao.kmp.videoplayer
 
-import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource
-import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,11 +12,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 actual class KVideoPlayer(
-    context: Context,
+    private val playerView: StyledPlayerView,
 ) {
-    private val player = StyledPlayerView(context).apply {
-        useController = false
-    }
     private var stateCallback: OnPlayerStateChanged? = null
     private var progressCallback: OnProgressChanged? = null
     private var errorCallback: OnPlayerError? = null
@@ -47,7 +36,7 @@ actual class KVideoPlayer(
                 countingJob = scope.launch {
                     while (true) {
                         delay(1000)
-                        progressCallback?.invoke(player.player?.currentPosition ?:0)
+                        progressCallback?.invoke(playerView.player?.currentPosition ?:0)
                     }
                 }
             }
@@ -60,7 +49,8 @@ actual class KVideoPlayer(
     }
 
     actual fun setDataSource(dataSource: Any, playWhenReady: Boolean) {
-        player.apply {
+        playerView.apply {
+            useController = false
             player?.release()
             player = ExoPlayer.Builder(context)
                 .build()
@@ -75,43 +65,43 @@ actual class KVideoPlayer(
     }
 
     actual fun play() {
-        player.player?.playWhenReady = true
-        player.onResume()
+        playerView.player?.playWhenReady = true
+        playerView.onResume()
     }
 
     actual fun pause() {
-        player.player?.playWhenReady = false
-        player.onPause()
+        playerView.player?.playWhenReady = false
+        playerView.onPause()
     }
 
     actual fun stop() {
-        player.player?.stop()
+        playerView.player?.stop()
     }
 
     actual fun release() {
         countingJob?.cancel()
-        player.player?.release()
+        playerView.player?.release()
         unRegisterCallback(state = true, progress = true, error = true)
     }
 
     actual fun seekTo(position: Long) {
-        player.player?.seekTo(position)
+        playerView.player?.seekTo(position)
     }
 
     actual fun setMute(mute: Boolean) {
-        player.player?.volume = if (mute) 0f else 1f
+        playerView.player?.volume = if (mute) 0f else 1f
     }
 
     actual fun setVolume(volume: Float) {
-        player.player?.volume = volume
+        playerView.player?.volume = volume
     }
 
     actual fun duration(): Long {
-        return player.player?.duration ?: -1
+        return playerView.player?.duration ?: -1
     }
 
     actual fun currentPosition(): Long {
-        return player.player?.currentPosition ?: -1
+        return playerView.player?.currentPosition ?: -1
     }
 
     actual fun registerCallback(
@@ -132,15 +122,5 @@ actual class KVideoPlayer(
         if (state) this.stateCallback = null
         if (progress) this.progressCallback = null
         if (error) this.errorCallback = null
-    }
-
-    @Composable
-    actual fun Content(modifier: Modifier) {
-        AndroidView(
-            factory = {
-                player
-            },
-            modifier = modifier
-        )
     }
 }

@@ -1,24 +1,16 @@
 package com.mimao.kmp.videoplayer
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
-import androidx.compose.ui.graphics.Color
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
-import java.awt.Component
-import java.util.*
+import uk.co.caprica.vlcj.player.component.MediaPlayerComponent
+import java.util.Locale
 
-actual class KVideoPlayer {
-    private val component: Component = if (isMacOS()) {
-        CallbackMediaPlayerComponent()
-    } else {
-        EmbeddedMediaPlayerComponent()
-    }
+actual class KVideoPlayer(
+    component: MediaPlayerComponent
+) {
     private val player = component.mediaPlayer()
-
     private var stateCallback: OnPlayerStateChanged? = null
     private var progressCallback: OnProgressChanged? = null
     private var errorCallback: OnPlayerError? = null
@@ -121,17 +113,6 @@ actual class KVideoPlayer {
         if (progress) this.progressCallback = {  }
         if (error) this.errorCallback = {  }
     }
-
-    @Composable
-    actual fun Content(modifier: Modifier) {
-        SwingPanel(
-            modifier = modifier,
-            factory = {
-                component
-            },
-            background = Color.Transparent
-        )
-    }
 }
 
 private fun Any.mediaPlayer(): MediaPlayer {
@@ -141,6 +122,12 @@ private fun Any.mediaPlayer(): MediaPlayer {
         else -> throw IllegalArgumentException("You can only call mediaPlayer() on vlcj player component")
     }
 }
+
+fun KVideoPlayer.defaultComponent() = if (isMacOS()) {
+        CallbackMediaPlayerComponent()
+    } else {
+        EmbeddedMediaPlayerComponent()
+    }
 
 private fun isMacOS(): Boolean {
     val os = System.getProperty("os.name", "generic").lowercase(Locale.ENGLISH)
