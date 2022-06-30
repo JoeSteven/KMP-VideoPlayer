@@ -1,5 +1,7 @@
 package com.mimao.kmp.videoplayer
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
@@ -11,50 +13,71 @@ actual class KVideoPlayer(
     component: MediaPlayerComponent
 ) {
     private val player = component.mediaPlayer()
-    private var stateCallback: OnPlayerStateChanged? = null
-    private var progressCallback: OnProgressChanged? = null
-    private var errorCallback: OnPlayerError? = null
+
+    private val _status = MutableStateFlow<KPlayerStatus>(KPlayerStatus.Idle)
+    actual val status: Flow<KPlayerStatus>
+        get() = _status
+
+    private val _volume = MutableStateFlow(1f)
+    actual val volume: Flow<Float>
+        get() = _volume
+
+    private val _isMute = MutableStateFlow(false)
+    actual val isMute: Flow<Boolean>
+        get() = _isMute
+
+    private val _currentTime = MutableStateFlow(0L)
+    actual val currentTime: Flow<Long>
+        get() = _currentTime
+
+    private val _duration = MutableStateFlow(0L)
+    actual val duration: Flow<Long>
+        get() = _duration
+
     private val eventAdapter = object : MediaPlayerEventAdapter() {
         override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {
-            stateCallback?.invoke(KPlayerState.Buffering)
+            _status.value = KPlayerStatus.Buffering
         }
 
         override fun playing(mediaPlayer: MediaPlayer?) {
-            stateCallback?.invoke(KPlayerState.Playing)
+            _status.value = KPlayerStatus.Playing
         }
 
         override fun paused(mediaPlayer: MediaPlayer?) {
-            stateCallback?.invoke(KPlayerState.Paused)
+            _status.value = KPlayerStatus.Paused
         }
 
         override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {
-            stateCallback?.invoke(KPlayerState.Ready)
+            _status.value = KPlayerStatus.Ready
+            _duration.value = player.status().length()
         }
 
         override fun timeChanged(mediaPlayer: MediaPlayer?, newTime: Long) {
-            progressCallback?.invoke(newTime)
+            _currentTime.value = newTime
+        }
+
+        override fun finished(mediaPlayer: MediaPlayer?) {
+            _status.value = KPlayerStatus.Ended
         }
 
         override fun error(mediaPlayer: MediaPlayer?) {
-            errorCallback?.invoke(
-                Error(
-                    "Failed to load media ${
-                        mediaPlayer?.media()?.info()?.mrl()
-                    }"
-                )
-            )
+            _status.value = KPlayerStatus.Error(Error(
+                "Failed to load media ${
+                    mediaPlayer?.media()?.info()?.mrl()
+                }"
+            ))
         }
     }
 
-    actual fun setDataSource(dataSource: Any, playWhenReady: Boolean) {
-        stateCallback?.invoke(KPlayerState.Idle)
+    actual fun prepare(dataSource: Any, playWhenReady: Boolean) {
+        _status.value = KPlayerStatus.Preparing
         player.events().addMediaPlayerEventListener(eventAdapter)
-        stateCallback?.invoke(KPlayerState.Preparing)
         if (playWhenReady) {
             player.media().play(dataSource.toString())
         } else {
             player.media().prepare(dataSource.toString())
         }
+        _duration.value = player.status().length()
     }
 
     actual fun play() {
@@ -71,7 +94,7 @@ actual class KVideoPlayer(
 
     actual fun release() {
         player.release()
-        unRegisterCallback(state = true, progress = true, error = true)
+        _status.value = KPlayerStatus.Released
     }
 
     actual fun seekTo(position: Long) {
@@ -79,40 +102,20 @@ actual class KVideoPlayer(
     }
 
     actual fun setMute(mute: Boolean) {
-        player.media()
+        player.audio().setVolume(if (mute) 0 else _volume.value.toVLCVolume())
+        _isMute.value = mute
     }
 
     actual fun setVolume(volume: Float) {
-        player.audio().setVolume(volume.toInt())
+        player.audio().setVolume(volume.toVLCVolume())
+        _volume.value = volume
     }
 
-    actual fun duration(): Long {
-        return player.status().length()
+    actual fun setRepeat(isRepeat: Boolean) {
+        player.controls().repeat = isRepeat
     }
 
-    actual fun currentPosition(): Long {
-        return player.status().time()
-    }
-
-    actual fun registerCallback(
-        state: OnPlayerStateChanged?,
-        progress: OnProgressChanged?,
-        error: OnPlayerError?,
-    ) {
-        state?.let { this.stateCallback = it }
-        progress?.let { this.progressCallback = it }
-        error?.let { this.errorCallback = it }
-    }
-
-    actual fun unRegisterCallback(
-        state: Boolean,
-        progress: Boolean,
-        error: Boolean,
-    ) {
-        if (state) this.stateCallback = {  }
-        if (progress) this.progressCallback = {  }
-        if (error) this.errorCallback = {  }
-    }
+    private fun Float.toVLCVolume() = (this * 200).toInt()
 }
 
 private fun Any.mediaPlayer(): MediaPlayer {

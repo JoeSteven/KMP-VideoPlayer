@@ -1,6 +1,8 @@
 package com.mimao.kmp.videoplayer
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import platform.AVFoundation.AVPlayer
 import platform.AVFoundation.AVPlayerItemPlaybackStalledNotification
 import platform.AVFoundation.currentItem
@@ -16,17 +18,38 @@ import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSURL
 import platform.darwin.NSObjectProtocol
 
+// TODO NOT IMPLEMENTED YET
 actual class KVideoPlayer(
     private val playerController: AVPlayerViewController
 ) {
+    private val _status = MutableStateFlow<KPlayerStatus>(KPlayerStatus.Idle)
+    actual val status: Flow<KPlayerStatus>
+        get() = _status
+
+    private val _volume = MutableStateFlow(1f)
+    actual val volume: Flow<Float>
+        get() = _volume
+
+    private val _isMute = MutableStateFlow(false)
+    actual val isMute: Flow<Boolean>
+        get() = _isMute
+
+    private val _currentTime = MutableStateFlow(0L)
+    actual val currentTime: Flow<Long>
+        get() = _currentTime
+
+    private val _duration = MutableStateFlow(0L)
+    actual val duration: Flow<Long>
+        get() = _duration
+
     private var player: AVPlayer? = null
     private var stateCallback: OnPlayerStateChanged? = null
     private var progressCallback: OnProgressChanged? = null
     private var errorCallback: OnPlayerError? = null
     private var observer: NSObjectProtocol? = null
 
-    actual fun setDataSource(dataSource: Any, playWhenReady: Boolean) {
-        stateCallback?.invoke(KPlayerState.Preparing)
+    actual fun prepare(dataSource: Any, playWhenReady: Boolean) {
+        stateCallback?.invoke(KPlayerStatus.Preparing)
         val url = NSURL(string = dataSource.toString())
         this.player = AVPlayer(uRL = url)
         observer = NSNotificationCenter.defaultCenter.addObserverForName(
@@ -38,18 +61,18 @@ actual class KVideoPlayer(
             }
         )
         playerController.player = player
-        stateCallback?.invoke(KPlayerState.Ready)
+        stateCallback?.invoke(KPlayerStatus.Ready)
         if (playWhenReady) play()
     }
 
     actual fun play() {
         player?.play()
-        stateCallback?.invoke(KPlayerState.Playing)
+        stateCallback?.invoke(KPlayerStatus.Playing)
     }
 
     actual fun pause() {
         player?.pause()
-        stateCallback?.invoke(KPlayerState.Paused)
+        stateCallback?.invoke(KPlayerStatus.Paused)
     }
 
     actual fun stop() {
@@ -61,7 +84,6 @@ actual class KVideoPlayer(
 
     actual fun release() {
         stop()
-        unRegisterCallback(state = true, progress = true, error = true)
         observer?.let {
             NSNotificationCenter.defaultCenter.removeObserver(it)
         }
@@ -79,36 +101,19 @@ actual class KVideoPlayer(
         player?.volume = volume
     }
 
-    actual fun duration(): Long {
-        return player?.currentItem()?.duration?.useContents {
-            value
-        } ?: 0
-    }
+//    actual fun duration(): Long {
+//        return player?.currentItem()?.duration?.useContents {
+//            value
+//        } ?: 0
+//    }
+//
+//    actual fun currentPosition(): Long {
+//        return  player?.currentTime()?.useContents {
+//            value
+//        } ?: 0
+//    }
 
-    actual fun currentPosition(): Long {
-        return  player?.currentTime()?.useContents {
-            value
-        } ?: 0
-    }
-
-
-    actual fun registerCallback(
-        state: OnPlayerStateChanged?,
-        progress: OnProgressChanged?,
-        error: OnPlayerError?,
-    ) {
-        state?.let { this.stateCallback = it }
-        progress?.let { this.progressCallback = it }
-        error?.let { this.errorCallback = it }
-    }
-
-    actual fun unRegisterCallback(
-        state: Boolean,
-        progress: Boolean,
-        error: Boolean,
-    ) {
-        if (state) this.stateCallback = null
-        if (progress) this.progressCallback = null
-        if (error) this.errorCallback = null
+    actual fun setRepeat(isRepeat: Boolean) {
+        TODO()
     }
 }

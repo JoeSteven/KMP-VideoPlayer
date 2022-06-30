@@ -1,7 +1,14 @@
 package com.mimao.kmp.videoplayer
 
+import kotlinx.coroutines.flow.Flow
+
 expect class KVideoPlayer{
-    fun setDataSource(dataSource: Any, playWhenReady: Boolean = true)
+    val status: Flow<KPlayerStatus>
+    val volume: Flow<Float>
+    val isMute: Flow<Boolean>
+    val currentTime: Flow<Long>
+    val duration: Flow<Long>
+    fun prepare(dataSource: Any, playWhenReady: Boolean = true)
     fun play()
     fun pause()
     fun stop()
@@ -9,31 +16,21 @@ expect class KVideoPlayer{
     fun seekTo(position: Long)
     fun setMute(mute: Boolean)
     fun setVolume(volume: Float)
-    fun duration(): Long
-    fun currentPosition(): Long
-
-    fun registerCallback(
-        state: OnPlayerStateChanged? = null,
-        progress: OnProgressChanged? = null,
-        error: OnPlayerError? = null,
-    )
-
-    fun unRegisterCallback(
-        state: Boolean = false,
-        progress: Boolean = false,
-        error: Boolean = false,
-    )
+    fun setRepeat(isRepeat: Boolean)
 }
 
-enum class KPlayerState{
-    Idle,
-    Preparing,
-    Ready,
-    Buffering,
-    Playing,
-    Paused,
+sealed interface KPlayerStatus{
+    object Idle: KPlayerStatus
+    object Preparing: KPlayerStatus
+    object Ready: KPlayerStatus
+    object Buffering : KPlayerStatus
+    object Playing: KPlayerStatus
+    object Paused: KPlayerStatus
+    object Ended: KPlayerStatus
+    data class Error(val error: Throwable): KPlayerStatus
+    object Released: KPlayerStatus
 }
 
 typealias OnPlayerError = (error: Throwable) -> Unit
-typealias OnPlayerStateChanged = (KPlayerState) -> Unit
+typealias OnPlayerStateChanged = (KPlayerStatus) -> Unit
 typealias OnProgressChanged = (Long) -> Unit
