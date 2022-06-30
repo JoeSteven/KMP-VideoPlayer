@@ -47,8 +47,12 @@ actual class KVideoPlayer(
             _status.value = KPlayerStatus.Paused
         }
 
+        /**
+         * Waiting for this event may be more reliable than using playing(MediaPlayer) or videoOutput(MediaPlayer, int)
+         * in some cases (logo and marquee already mentioned, also setting audio tracks, sub-title tracks and so on).
+         */
         override fun mediaPlayerReady(mediaPlayer: MediaPlayer?) {
-            _status.value = KPlayerStatus.Ready
+            _status.value = KPlayerStatus.Playing
             _duration.value = player.status().length()
         }
 
@@ -78,6 +82,7 @@ actual class KVideoPlayer(
             player.media().prepare(dataSource.toString())
         }
         _duration.value = player.status().length()
+        _status.value = KPlayerStatus.Ready
     }
 
     actual fun play() {
@@ -107,8 +112,10 @@ actual class KVideoPlayer(
     }
 
     actual fun setVolume(volume: Float) {
-        player.audio().setVolume(volume.toVLCVolume())
-        _volume.value = volume
+        volume.coerceIn(0f, 1f).let {
+            player.audio().setVolume(it.toVLCVolume())
+            _volume.value = it
+        }
     }
 
     actual fun setRepeat(isRepeat: Boolean) {

@@ -43,7 +43,10 @@ actual class KVideoPlayer(
             when (playbackState) {
                 Player.STATE_IDLE -> _status.value = KPlayerStatus.Idle
                 Player.STATE_BUFFERING -> _status.value = KPlayerStatus.Buffering
-                Player.STATE_READY -> _status.value = KPlayerStatus.Ready
+                Player.STATE_READY -> {
+                    _status.value = KPlayerStatus.Ready
+                    emitDuration()
+                }
                 Player.STATE_ENDED -> _status.value = KPlayerStatus.Ended
                 else -> {}
             }
@@ -79,6 +82,7 @@ actual class KVideoPlayer(
                     setMediaItem(MediaItem.fromUri(dataSource as String))
                     this.playWhenReady = playWhenReady
                     prepare()
+                    emitDuration()
                 }
         }
     }
@@ -105,6 +109,9 @@ actual class KVideoPlayer(
 
     actual fun seekTo(position: Long) {
         playerView.player?.seekTo(position)
+        playerView.player?.currentPosition?.let {
+            _currentTime.value = it
+        }
     }
 
     actual fun setMute(mute: Boolean) {
@@ -113,12 +120,17 @@ actual class KVideoPlayer(
     }
 
     actual fun setVolume(volume: Float) {
-        playerView.player?.volume = volume
-        _volume.value = volume
+        volume.coerceIn(0f, 1f).let {
+            playerView.player?.volume = it
+            _volume.value = it
+        }
     }
 
     actual fun setRepeat(isRepeat: Boolean) {
         playerView.player?.repeatMode = if (isRepeat) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
     }
 
+    private fun emitDuration() {
+        _duration.value = playerView?.player?.duration ?: 0
+    }
 }
