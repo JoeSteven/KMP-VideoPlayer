@@ -1,3 +1,5 @@
+
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose") version Versions.compose
@@ -7,7 +9,7 @@ kotlin {
     iosX64("uikitX64") {
         binaries {
             executable {
-                entryPoint = "main"
+                entryPoint = "com.mimao.kmp.videoplayer.sample.main"
                 freeCompilerArgs = freeCompilerArgs + listOf(
                     "-linker-option", "-framework", "-linker-option", "Metal",
                     "-linker-option", "-framework", "-linker-option", "CoreText",
@@ -19,7 +21,7 @@ kotlin {
     iosArm64("uikitArm64") {
         binaries {
             executable {
-                entryPoint = "main"
+                entryPoint = "com.mimao.kmp.videoplayer.sample"
                 freeCompilerArgs = freeCompilerArgs + listOf(
                     "-linker-option", "-framework", "-linker-option", "Metal",
                     "-linker-option", "-framework", "-linker-option", "CoreText",
@@ -33,7 +35,7 @@ kotlin {
     sourceSets {
         val uikitMain by creating {
             dependencies {
-                // implementation(projects.app.shared)
+                implementation(projects.app.shared)
             }
         }
         val uikitX64Main by getting {
@@ -48,7 +50,7 @@ kotlin {
 compose.experimental {
     uikit.application {
         bundleIdPrefix = "com.mimao.kmp.videoplayer.sample"
-        projectName = "KMP VideoPlayer"
+        projectName = "Kmp VideoPlayer"
     }
 }
 

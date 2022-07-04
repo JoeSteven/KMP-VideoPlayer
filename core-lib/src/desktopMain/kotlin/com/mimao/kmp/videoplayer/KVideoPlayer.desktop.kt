@@ -2,8 +2,10 @@ package com.mimao.kmp.videoplayer
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import uk.co.caprica.vlcj.media.*
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
+import uk.co.caprica.vlcj.player.base.State
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
 import uk.co.caprica.vlcj.player.component.MediaPlayerComponent
@@ -83,6 +85,7 @@ actual class KVideoPlayer(
         }
         _duration.value = player.status().length()
         _status.value = KPlayerStatus.Ready
+        player.video().
     }
 
     actual fun play() {

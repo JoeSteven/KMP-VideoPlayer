@@ -4,8 +4,9 @@ plugins {
 }
 
 kotlin {
-    iosX64()
+    ios()
     iosArm64()
+    iosX64()
     android()
     jvm("desktop") {
         compilations.all {
@@ -33,11 +34,7 @@ kotlin {
 
         val iosArm64Main by getting
         val iosX64Main by getting
-        val iosMain by creating {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-        }
+        val iosMain by getting
     }
 }
 

@@ -1,22 +1,20 @@
 package com.mimao.kmp.videoplayer
+import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.cValue
+import kotlinx.cinterop.getBytes
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import platform.AVFoundation.AVPlayer
-import platform.AVFoundation.AVPlayerItemPlaybackStalledNotification
-import platform.AVFoundation.currentItem
-import platform.AVFoundation.currentTime
-import platform.AVFoundation.duration
-import platform.AVFoundation.pause
-import platform.AVFoundation.play
-import platform.AVFoundation.seekToTime
-import platform.AVFoundation.volume
+import platform.AVFoundation.*
 import platform.AVKit.AVPlayerViewController
-import platform.Foundation.NSNotificationCenter
-import platform.Foundation.NSOperationQueue
-import platform.Foundation.NSURL
+import platform.CoreGraphics.CGImageRef
+import platform.Foundation.*
+import platform.UIKit.UIImage
+import platform.UIKit.UIImageJPEGRepresentation
+import platform.UIKit.accessibilityFrame
 import platform.darwin.NSObjectProtocol
+import platform.darwin.UInt8
 
 // TODO NOT IMPLEMENTED YET
 actual class KVideoPlayer(
@@ -42,14 +40,15 @@ actual class KVideoPlayer(
     actual val duration: Flow<Long>
         get() = _duration
 
-    private var player: AVPlayer? = null
-    private var stateCallback: OnPlayerStateChanged? = null
-    private var progressCallback: OnProgressChanged? = null
-    private var errorCallback: OnPlayerError? = null
-    private var observer: NSObjectProtocol? = null
+    private var _frame = MutableStateFlow(byteArrayOf())
+    val frame:Flow<ByteArray> = _frame
 
+    private var player: AVPlayer? = null
+    private var observer: NSObjectProtocol? = null
+    private val scope = CoroutineScope(Dispatchers.Main)
+    private var countingJob: Job? = null
     actual fun prepare(dataSource: Any, playWhenReady: Boolean) {
-        stateCallback?.invoke(KPlayerStatus.Preparing)
+        _status.value =KPlayerStatus.Preparing
         val url = NSURL(string = dataSource.toString())
         this.player = AVPlayer(uRL = url)
         observer = NSNotificationCenter.defaultCenter.addObserverForName(
@@ -57,22 +56,53 @@ actual class KVideoPlayer(
             `object` = null,
             queue = NSOperationQueue.mainQueue,
             usingBlock = {
-                errorCallback?.invoke(Error("Failed to play media"))
+                _status.value = KPlayerStatus.Error(Error("Failed to play media"))
             }
         )
+        player?.addObserver(o)
         playerController.player = player
-        stateCallback?.invoke(KPlayerStatus.Ready)
-        if (playWhenReady) play()
+        player?.currentItem?.asset?.let {asset ->
+            player?.currentItem?.videoComposition = AVVideoComposition.videoCompositionWithAsset(
+                asset = asset,
+                applyingCIFiltersWithHandler = {
+//                    it?.accessibilityFrame?.getBytes()?.let { bytes ->
+//                        _frame.value = bytes
+//                    }
+//                    val provider = CGImageGetDataProvider(image)
+//                    val data = CFDataGetBytePtr(CGDataProviderCopyData(provider))
+
+                    it?.finishWithImage(it.sourceImage, null)
+                }
+            )
+        }
+        if (playWhenReady){
+            play()
+        }
+        _duration.value = player?.currentItem?.asset?.duration?.useContents {
+            value
+        } ?: 0
+
+        _status.value = KPlayerStatus.Ready
     }
 
     actual fun play() {
         player?.play()
-        stateCallback?.invoke(KPlayerStatus.Playing)
+        _status.value = KPlayerStatus.Playing
+        countingJob?.cancel()
+        countingJob = scope.launch {
+            while (true) {
+                delay(1000)
+                _currentTime.value = player?.currentTime()?.useContents {
+                    value
+                } ?: 0
+            }
+        }
     }
 
     actual fun pause() {
         player?.pause()
-        stateCallback?.invoke(KPlayerStatus.Paused)
+        countingJob?.cancel()
+        _status.value = KPlayerStatus.Paused
     }
 
     actual fun stop() {
@@ -80,6 +110,7 @@ actual class KVideoPlayer(
             pause()
             seekTo(0)
         }
+        countingJob?.cancel()
     }
 
     actual fun release() {
@@ -87,6 +118,7 @@ actual class KVideoPlayer(
         observer?.let {
             NSNotificationCenter.defaultCenter.removeObserver(it)
         }
+        _status.value = KPlayerStatus.Released
     }
 
     actual fun seekTo(position: Long) {
@@ -94,26 +126,18 @@ actual class KVideoPlayer(
     }
 
     actual fun setMute(mute: Boolean) {
-        player?.volume = if (mute) 0f else 1f
+        player?.volume =if (mute) 0f else _volume.value
+        _isMute.value = mute
     }
 
     actual fun setVolume(volume: Float) {
-        player?.volume = volume
+        volume.coerceIn(0f, 1f).let {
+            player?.volume = it
+            _volume.value = it
+        }
     }
 
-//    actual fun duration(): Long {
-//        return player?.currentItem()?.duration?.useContents {
-//            value
-//        } ?: 0
-//    }
-//
-//    actual fun currentPosition(): Long {
-//        return  player?.currentTime()?.useContents {
-//            value
-//        } ?: 0
-//    }
-
     actual fun setRepeat(isRepeat: Boolean) {
-        TODO()
+        // todo
     }
 }
