@@ -1,14 +1,14 @@
 package com.mimao.kmp.videoplayer
-import kotlinx.cinterop.COpaquePointer
-import kotlinx.cinterop.cValue
-import kotlinx.cinterop.getBytes
-import kotlinx.cinterop.useContents
+import kotlinx.cinterop.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import platform.AVFoundation.*
 import platform.AVKit.AVPlayerViewController
 import platform.CoreGraphics.CGImageRef
+import platform.CoreMedia.CMTime
+import platform.CoreMedia.CMTimeGetSeconds
+import platform.CoreMedia.CMTimeMake
 import platform.Foundation.*
 import platform.UIKit.UIImage
 import platform.UIKit.UIImageJPEGRepresentation
@@ -59,7 +59,6 @@ actual class KVideoPlayer(
                 _status.value = KPlayerStatus.Error(Error("Failed to play media"))
             }
         )
-        player?.addObserver(o)
         playerController.player = player
         player?.currentItem?.asset?.let {asset ->
             player?.currentItem?.videoComposition = AVVideoComposition.videoCompositionWithAsset(
@@ -78,10 +77,7 @@ actual class KVideoPlayer(
         if (playWhenReady){
             play()
         }
-        _duration.value = player?.currentItem?.asset?.duration?.useContents {
-            value
-        } ?: 0
-
+        _duration.value = player?.currentItem?.duration.milliseconds()
         _status.value = KPlayerStatus.Ready
     }
 
@@ -92,9 +88,10 @@ actual class KVideoPlayer(
         countingJob = scope.launch {
             while (true) {
                 delay(1000)
-                _currentTime.value = player?.currentTime()?.useContents {
-                    value
-                } ?: 0
+                _currentTime.value = player?.currentTime().milliseconds()
+                if (_duration.value == 0L) {
+                    _duration.value = player?.currentItem?.duration.milliseconds()
+                }
             }
         }
     }
@@ -122,7 +119,10 @@ actual class KVideoPlayer(
     }
 
     actual fun seekTo(position: Long) {
-        player?.seekToTime(time = cValue{value = position})
+        player?.seekToTime(time = CMTimeMake(
+            value = position,
+            timescale = 1000
+        ))
     }
 
     actual fun setMute(mute: Boolean) {
@@ -139,5 +139,11 @@ actual class KVideoPlayer(
 
     actual fun setRepeat(isRepeat: Boolean) {
         // todo
+    }
+
+    private fun CValue<CMTime>?.milliseconds(): Long {
+        return this?.let {
+            CMTimeGetSeconds(this).toLong() * 1000
+        } ?: 0L
     }
 }
