@@ -1,10 +1,21 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
 }
 
 kotlin {
-    ios()
+    ios {
+        compilations.getByName("main") {
+            cinterops {
+                val observer by creating {
+                    defFile(project.file("src/nativeInterop/cinterop/observer.def"))
+                    packageName("com.mimao.kmp.videoplayer")
+                }
+            }
+        }
+    }
     iosArm64()
     iosX64()
     android()
@@ -31,10 +42,14 @@ kotlin {
                 api("uk.co.caprica:vlcj:4.7.1")
             }
         }
-
-        val iosArm64Main by getting
-        val iosX64Main by getting
         val iosMain by getting
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
+
     }
 }
 

@@ -16,11 +16,10 @@ import com.mimao.kmp.videoplayer.KPlayerStatus
 
 @Composable
 fun App() {
-    val (player, videoLayout )= rememberVideoPlayerState()
+    val (player, videoLayout) = rememberVideoPlayerState()
     LaunchedEffect(player) {
         player.apply {
             prepare("https://www.w3schools.com/html/movie.mp4")
-            setRepeat(true)
         }
     }
     val status by player.status.collectAsState(KPlayerStatus.Idle)
@@ -28,6 +27,7 @@ fun App() {
     val isMuted by player.isMute.collectAsState(false)
     val duration by player.duration.collectAsState(0L)
     val currentTime by player.currentTime.collectAsState(0L)
+    val isRepeated by player.isRepeated.collectAsState(false)
 
     println("status: $status, $volume, $isMuted, $currentTime, $duration")
     Column {
@@ -39,27 +39,33 @@ fun App() {
                 }) {
                     Text("Reload")
                 }
-            } else  if (status is KPlayerStatus.Buffering){
+            } else if (status is KPlayerStatus.Buffering) {
                 CircularProgressIndicator()
-            } else  {
+            } else {
                 Button(onClick = {
-                    when(status) {
+                    when (status) {
                         KPlayerStatus.Playing -> player.pause()
                         else -> player.play()
                     }
                 }) {
-                    when(status) {
+                    when (status) {
                         KPlayerStatus.Playing -> Text("Pause")
                         else -> Text("Play")
                     }
                 }
             }
 
+            Button(onClick = {
+                player.setRepeat(!isRepeated)
+            }) {
+                Text("Mode")
+            }
+
             if (status is KPlayerStatus.Error) {
                 Text("Error: ${(status as KPlayerStatus.Error).error}")
             } else {
                 LinearProgressIndicator(
-                    progress = currentTime/duration.toFloat(),
+                    progress = currentTime / duration.toFloat(),
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -67,11 +73,17 @@ fun App() {
             if (isMuted) {
                 Text("Volume: Muted!")
             } else {
-                Text("Volume: ${volume* 100}%")
+                Text("Volume: ${volume * 100}%")
             }
 
+            Text(if (isRepeated) "Repeat: On" else "Repeat: Off")
+
         }
-        Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Button(onClick = {
                 player.setMute(!isMuted)
             }) {
@@ -89,7 +101,11 @@ fun App() {
                 Text("volume +10%")
             }
         }
-        Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Button(onClick = {
                 player.seekTo(0)
             }) {
@@ -97,7 +113,7 @@ fun App() {
             }
 
             Button(onClick = {
-                player.seekTo(duration/2)
+                player.seekTo(duration / 2)
             }) {
                 Text("middle")
             }

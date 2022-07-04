@@ -36,6 +36,10 @@ actual class KVideoPlayer(
     actual val duration: Flow<Long>
         get() = _duration
 
+    private val _isRepeated = MutableStateFlow(false)
+    actual val isRepeated: Flow<Boolean>
+        get() = _isRepeated
+
     private var countingJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Main)
     private val listener = object : Player.Listener {
@@ -47,6 +51,7 @@ actual class KVideoPlayer(
                     _status.value = KPlayerStatus.Ready
                     emitDuration()
                 }
+
                 Player.STATE_ENDED -> _status.value = KPlayerStatus.Ended
                 else -> {}
             }
@@ -59,7 +64,7 @@ actual class KVideoPlayer(
                 countingJob = scope.launch {
                     while (true) {
                         delay(1000)
-                        _currentTime.value = playerView.player?.currentPosition ?:0
+                        _currentTime.value = playerView.player?.currentPosition ?: 0
                     }
                 }
             }
@@ -128,6 +133,7 @@ actual class KVideoPlayer(
 
     actual fun setRepeat(isRepeat: Boolean) {
         playerView.player?.repeatMode = if (isRepeat) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
+        _isRepeated.value = isRepeat
     }
 
     private fun emitDuration() {

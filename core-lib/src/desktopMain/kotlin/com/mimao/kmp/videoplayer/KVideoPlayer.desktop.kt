@@ -36,6 +36,10 @@ actual class KVideoPlayer(
     actual val duration: Flow<Long>
         get() = _duration
 
+    private val _isRepeated = MutableStateFlow(false)
+    actual val isRepeated: Flow<Boolean>
+        get() = _isRepeated
+
     private val eventAdapter = object : MediaPlayerEventAdapter() {
         override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {
             _status.value = KPlayerStatus.Buffering
@@ -67,11 +71,13 @@ actual class KVideoPlayer(
         }
 
         override fun error(mediaPlayer: MediaPlayer?) {
-            _status.value = KPlayerStatus.Error(Error(
-                "Failed to load media ${
-                    mediaPlayer?.media()?.info()?.mrl()
-                }"
-            ))
+            _status.value = KPlayerStatus.Error(
+                Error(
+                    "Failed to load media ${
+                        mediaPlayer?.media()?.info()?.mrl()
+                    }"
+                )
+            )
         }
     }
 
@@ -85,7 +91,6 @@ actual class KVideoPlayer(
         }
         _duration.value = player.status().length()
         _status.value = KPlayerStatus.Ready
-        player.video().
     }
 
     actual fun play() {
@@ -123,6 +128,7 @@ actual class KVideoPlayer(
 
     actual fun setRepeat(isRepeat: Boolean) {
         player.controls().repeat = isRepeat
+        _isRepeated.value = isRepeat
     }
 
     private fun Float.toVLCVolume() = (this * 200).toInt()
@@ -136,11 +142,11 @@ private fun Any.mediaPlayer(): MediaPlayer {
     }
 }
 
-fun defaultComponent():MediaPlayerComponent = if (isMacOS()) {
-        CallbackMediaPlayerComponent()
-    } else {
-        EmbeddedMediaPlayerComponent()
-    }
+fun defaultComponent(): MediaPlayerComponent = if (isMacOS()) {
+    CallbackMediaPlayerComponent()
+} else {
+    EmbeddedMediaPlayerComponent()
+}
 
 private fun isMacOS(): Boolean {
     val os = System.getProperty("os.name", "generic").lowercase(Locale.ENGLISH)
