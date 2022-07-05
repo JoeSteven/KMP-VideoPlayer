@@ -44,9 +44,6 @@ actual class KVideoPlayer(
     actual val isRepeated: Flow<Boolean>
         get() = _isRepeated
 
-    private var _frame = MutableStateFlow(byteArrayOf())
-    val frame: Flow<ByteArray> = _frame
-
     private var player: AVPlayer? = null
     private val scope = CoroutineScope(Dispatchers.Main)
     private var repeatJob: Job? = null
@@ -75,11 +72,8 @@ actual class KVideoPlayer(
                 }
             }
         )
-
         playerController.player = player
-        // TODO display video frame
     }
-
 
     actual fun play() {
         player?.play()
@@ -170,6 +164,7 @@ actual class KVideoPlayer(
                 AVPlayerItemStatusFailed -> {
                     _status.value = KPlayerStatus.Error(Error("Failed to play media"))
                 }
+                else -> {}
             }
         } ?: println("unknown status $keyPath")
     }
