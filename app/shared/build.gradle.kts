@@ -24,7 +24,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
-                api(project(":core-lib"))
+                api(project(":video-player"))
             }
         }
 

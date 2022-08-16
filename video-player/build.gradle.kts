@@ -1,8 +1,10 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import com.vanniktech.maven.publish.KotlinMultiplatform
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
 
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("com.vanniktech.maven.publish.base")
 }
 
 kotlin {
@@ -64,4 +66,9 @@ android {
         sourceCompatibility = Versions.Java.java
         targetCompatibility = Versions.Java.java
     }
+}
+
+@Suppress("UnstableApiUsage")
+configure<MavenPublishBaseExtension> {
+    configure(KotlinMultiplatform())
 }
