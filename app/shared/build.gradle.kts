@@ -12,9 +12,10 @@ kotlin {
             kotlinOptions.jvmTarget = Versions.Java.jvmTarget
         }
     }
-    ios()
     iosX64()
     iosArm64()
+    macosX64()
+    macosArm64()
 
     sourceSets {
         val commonMain by getting {
@@ -40,9 +41,22 @@ kotlin {
                 implementation(compose.material)
             }
         }
-        val iosMain by sourceSets.getting
-        val iosArm64Main by sourceSets.getting
-        val iosX64Main by sourceSets.getting
+        val darwinMain by creating {
+            dependsOn(commonMain)
+        }
+
+        val iosArm64Main by getting {
+            dependsOn(darwinMain)
+        }
+        val iosX64Main by getting {
+            dependsOn(darwinMain)
+        }
+        val macosX64Main by getting {
+            dependsOn(darwinMain)
+        }
+        val macosArm64Main by getting {
+            dependsOn(darwinMain)
+        }
     }
 }
 

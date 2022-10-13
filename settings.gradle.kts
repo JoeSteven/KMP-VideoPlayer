@@ -5,7 +5,6 @@ pluginManagement {
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
-    
 }
 
 @Suppress("UnstableApiUsage")
@@ -19,6 +18,6 @@ dependencyResolutionManagement {
 rootProject.name = "KMP-VideoPlayer"
 
 include(":video-player")
-include(":app:shared",":app:android", "app:desktop", "app:uikit" )
+include(":app:shared",":app:android", "app:desktop", "app:uikit", "app:macos" )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

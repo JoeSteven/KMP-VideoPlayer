@@ -51,7 +51,7 @@ allprojects {
                 scm {
                     url.set("https://github.com/JoeSteven/KMP-VideoPlayer/")
                     connection.set("scm:git:git://github.com/JoeSteven/KMP-VideoPlayer.git")
-                    developerConnection.set("scm:git:git://github.com/JoeSteven/KMP-VideoPlayerr.git")
+                    developerConnection.set("scm:git:git://github.com/JoeSteven/KMP-VideoPlayer.git")
                 }
             }
         }

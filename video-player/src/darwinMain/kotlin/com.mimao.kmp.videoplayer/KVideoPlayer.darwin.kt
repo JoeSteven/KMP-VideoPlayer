@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import platform.AVFoundation.*
-import platform.AVKit.AVPlayerViewController
 import platform.CoreMedia.CMTime
 import platform.CoreMedia.CMTimeGetSeconds
 import platform.CoreMedia.CMTimeMake
@@ -17,9 +16,7 @@ import platform.Foundation.*
 import platform.darwin.NSObject
 import platform.darwin.dispatch_get_main_queue
 
-actual class KVideoPlayer(
-    private val playerController: AVPlayerViewController
-) : IOSPlayerObserverProtocol, NSObject() {
+actual class KVideoPlayer() : IOSPlayerObserverProtocol, NSObject() {
     private val _status = MutableStateFlow<KPlayerStatus>(KPlayerStatus.Idle)
     actual val status: Flow<KPlayerStatus>
         get() = _status
@@ -72,7 +69,6 @@ actual class KVideoPlayer(
                 }
             }
         )
-        playerController.player = player
     }
 
     actual fun play() {

@@ -6,6 +6,7 @@ import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
 import com.mimao.kmp.videoplayer.KVideoPlayer
 import com.mimao.kmp.videoplayer.defaultComponent
+import org.jetbrains.skia.Image
 import java.awt.Component
 
 @Composable
