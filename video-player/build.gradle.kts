@@ -20,6 +20,26 @@ kotlin {
     }
     iosArm64()
     iosX64()
+    macosX64 {
+        compilations.getByName("main") {
+            cinterops {
+                val observer by creating {
+                    defFile(project.file("src/nativeInterop/cinterop/observer.def"))
+                    packageName("com.mimao.kmp.videoplayer")
+                }
+            }
+        }
+    }
+    macosArm64 {
+        compilations.getByName("main") {
+            cinterops {
+                val observer by creating {
+                    defFile(project.file("src/nativeInterop/cinterop/observer.def"))
+                    packageName("com.mimao.kmp.videoplayer")
+                }
+            }
+        }
+    }
     android()
     jvm("desktop") {
         compilations.all {
@@ -44,12 +64,29 @@ kotlin {
                 api("uk.co.caprica:vlcj:4.7.1")
             }
         }
-        val iosMain by getting
+        val darwinMain by creating {
+            dependsOn(commonMain)
+        }
+        val iosMain by getting{
+            dependsOn(darwinMain)
+        }
         val iosArm64Main by getting {
             dependsOn(iosMain)
         }
         val iosX64Main by getting {
             dependsOn(iosMain)
+        }
+        val macosMain by creating {
+            dependencies {
+                dependsOn(darwinMain)
+            }
+        }
+        val macosX64Main by getting {
+            dependsOn(macosMain)
+        }
+
+        val macosArm64Main by getting {
+            dependsOn(macosMain)
         }
 
     }

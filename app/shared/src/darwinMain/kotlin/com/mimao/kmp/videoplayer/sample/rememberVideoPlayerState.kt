@@ -5,12 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.mimao.kmp.videoplayer.KVideoPlayer
-import platform.AVKit.AVPlayerViewController
 
 @Composable
 actual fun rememberVideoPlayerState(): VideoPlayerState {
     return remember {
-        val player = KVideoPlayer(AVPlayerViewController())
+        val player = KVideoPlayer()
         VideoPlayerState(
             player = player,
             content = {
