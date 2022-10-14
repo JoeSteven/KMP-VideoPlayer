@@ -7,9 +7,6 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.21.0" apply false
 }
 
-group = "io.github.joesteven"
-version = "1.0.0"
-
 allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
@@ -31,7 +28,7 @@ allprojects {
             pom {
                 group = "io.github.joesteven"
                 version = "1.0.0"
-                name.set("kmp-videoplayer")
+                name.set("kvideoplayer")
                 description.set("Video player for Kotlin multiplatform")
                 url.set("https://github.com/JoeSteven/KMP-VideoPlayer/")
                 licenses {

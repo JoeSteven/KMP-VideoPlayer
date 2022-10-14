@@ -17,7 +17,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "KMP-VideoPlayer"
 
-include(":video-player")
+include(":kvideoplayer")
 include(":app:shared",":app:android", "app:desktop", "app:uikit", "app:macos" )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
