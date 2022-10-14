@@ -1,14 +1,12 @@
 package com.mimao.kmp.videoplayer.sample
 
-import androidx.compose.material.Text
 import androidx.compose.ui.window.Application
-import com.mimao.kmp.videoplayer.KVideoPlayer
+import com.mimao.kmp.videoplayer.createKVideoPlayerWithController
 import kotlinx.cinterop.*
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skiko.*
-import platform.AVFoundation.AVPlayerLayer
 import platform.AVKit.AVPlayerViewController
 import platform.Foundation.NSStringFromClass
 import platform.UIKit.*
@@ -65,7 +63,7 @@ private fun SkikoApp() = SkikoViewController(
 )
 
 private fun VideoApp() = AVPlayerViewController().apply {
-    val kPlayer = KVideoPlayer(this)
+    val kPlayer = createKVideoPlayerWithController(this)
     kPlayer.apply {
         prepare("https://www.w3schools.com/html/movie.mp4")
         setRepeat(true)

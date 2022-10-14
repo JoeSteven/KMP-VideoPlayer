@@ -46,6 +46,8 @@ actual class KVideoPlayer() : IOSPlayerObserverProtocol, NSObject() {
     private var repeatJob: Job? = null
     private var timeObserver: Any? = null
     private var playWhenReady = false
+
+    internal var onPlayerCreated: (AVPlayer) -> Unit = {}
     actual fun prepare(dataSource: Any, playWhenReady: Boolean) {
         this.playWhenReady = playWhenReady
         _status.value = KPlayerStatus.Preparing
@@ -69,6 +71,7 @@ actual class KVideoPlayer() : IOSPlayerObserverProtocol, NSObject() {
                 }
             }
         )
+        player?.let(onPlayerCreated)
     }
 
     actual fun play() {
