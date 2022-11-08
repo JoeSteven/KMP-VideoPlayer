@@ -81,7 +81,9 @@ actual class KVideoPlayer(
         }
     }
 
+    private var currentDataSource: Any? = null
     actual fun prepare(dataSource: Any, playWhenReady: Boolean) {
+        currentDataSource = dataSource
         _status.value = KPlayerStatus.Preparing
         player.events().addMediaPlayerEventListener(eventAdapter)
         if (playWhenReady) {
@@ -94,7 +96,14 @@ actual class KVideoPlayer(
     }
 
     actual fun play() {
-        player.controls().play()
+        if (_status.value is KPlayerStatus.Error) {
+            currentDataSource?.let {
+                prepare(dataSource = it, playWhenReady = true)
+            }
+        } else {
+            player.controls().play()
+        }
+
     }
 
     actual fun pause() {

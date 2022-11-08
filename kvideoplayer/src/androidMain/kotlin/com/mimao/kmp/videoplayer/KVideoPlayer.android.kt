@@ -42,10 +42,11 @@ actual class KVideoPlayer(
 
     private var countingJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Main)
+    private var currentDataSource: Any? = null
     private val listener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
-                Player.STATE_IDLE -> _status.value = KPlayerStatus.Idle
+                Player.STATE_IDLE -> if (_status.value !is KPlayerStatus.Error) _status.value = KPlayerStatus.Idle
                 Player.STATE_BUFFERING -> _status.value = KPlayerStatus.Buffering
                 Player.STATE_READY -> {
                     _status.value = KPlayerStatus.Ready
@@ -58,7 +59,7 @@ actual class KVideoPlayer(
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
-            _status.value = if (isPlaying) KPlayerStatus.Playing else KPlayerStatus.Paused
+            if (isPlaying) _status.value = KPlayerStatus.Playing
             countingJob?.cancel()
             if (isPlaying) {
                 countingJob = scope.launch {
@@ -76,6 +77,7 @@ actual class KVideoPlayer(
     }
 
     actual fun prepare(dataSource: Any, playWhenReady: Boolean) {
+        currentDataSource = dataSource
         _status.value = KPlayerStatus.Preparing
         playerView.apply {
             useController = false
@@ -93,17 +95,25 @@ actual class KVideoPlayer(
     }
 
     actual fun play() {
-        playerView.player?.playWhenReady = true
-        playerView.onResume()
+        if (_status.value is KPlayerStatus.Error) {
+            currentDataSource?.let {
+                prepare(dataSource = it, playWhenReady = true)
+            }
+        } else {
+            playerView.player?.playWhenReady = true
+            playerView.onResume()
+        }
     }
 
     actual fun pause() {
         playerView.player?.playWhenReady = false
         playerView.onPause()
+        _status.value = KPlayerStatus.Paused
     }
 
     actual fun stop() {
         playerView.player?.stop()
+        _status.value = KPlayerStatus.Paused
     }
 
     actual fun release() {

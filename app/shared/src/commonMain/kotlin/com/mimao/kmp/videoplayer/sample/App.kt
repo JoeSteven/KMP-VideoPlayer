@@ -1,14 +1,8 @@
 package com.mimao.kmp.videoplayer.sample
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,7 +13,7 @@ fun App() {
     val (player, videoLayout) = rememberVideoPlayerState()
     LaunchedEffect(player) {
         player.apply {
-            prepare("https://www.w3schools.com/html/movie.mp4")
+            prepare("https://video.twimg.com/amplify_video/1589178626284847104/vid/1280x720/7ctjE5yWg6XaDE_T.mp4?tag=14")
         }
     }
     val status by player.status.collectAsState(KPlayerStatus.Idle)
@@ -30,12 +24,28 @@ fun App() {
     val isRepeated by player.isRepeated.collectAsState(false)
 
     println("status: $status, $volume, $isMuted, $currentTime, $duration")
+    var seek:Float by remember { mutableStateOf(0f) }
+    var seeking: Boolean by remember {  mutableStateOf(false) }
     Column {
         videoLayout.invoke(Modifier.fillMaxWidth().height(300.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Slider(
+                value = if (duration > 0 && !seeking) currentTime / duration.toFloat() else seek,
+                modifier = Modifier.weight(1f),
+                onValueChange = {
+                    seek = it
+                    seeking = true
+                },
+                onValueChangeFinished = {
+                    player.seekTo((duration * seek).toLong())
+                    seeking = false
+                }
+            )
+        }
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             if (status is KPlayerStatus.Error) {
                 Button(onClick = {
-                    player.prepare("https://www.w3schools.com/html/movie.mp4")
+                    player.play()
                 }) {
                     Text("Reload")
                 }
@@ -63,11 +73,6 @@ fun App() {
 
             if (status is KPlayerStatus.Error) {
                 Text("Error: ${(status as KPlayerStatus.Error).error}")
-            } else {
-                LinearProgressIndicator(
-                    progress = currentTime / duration.toFloat(),
-                    modifier = Modifier.weight(1f),
-                )
             }
 
             if (isMuted) {
@@ -99,29 +104,6 @@ fun App() {
                 player.setVolume(volume + 0.1f)
             }) {
                 Text("volume +10%")
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(onClick = {
-                player.seekTo(0)
-            }) {
-                Text("start")
-            }
-
-            Button(onClick = {
-                player.seekTo(duration / 2)
-            }) {
-                Text("middle")
-            }
-
-            Button(onClick = {
-                player.seekTo(duration)
-            }) {
-                Text("end")
             }
         }
     }
