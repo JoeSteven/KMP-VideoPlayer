@@ -40,7 +40,9 @@ kotlin {
             }
         }
     }
-    android()
+    android {
+        publishLibraryVariants("debug", "release")
+    }
     jvm("desktop") {
         compilations.all {
             kotlinOptions.jvmTarget = Versions.Java.jvmTarget
@@ -93,11 +95,12 @@ kotlin {
 }
 
 android {
-    compileSdk = 31
+    namespace = "io.github.joesteven.kvideoplayer"
+    compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 24
-        targetSdk = 31
+        targetSdk = 33
     }
     compileOptions {
         sourceCompatibility = Versions.Java.java

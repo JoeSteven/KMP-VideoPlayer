@@ -26,6 +26,7 @@ kotlin {
                 api(compose.foundation)
                 api(compose.material)
                 api(project(":kvideoplayer"))
+                // api("io.github.joesteven:kvideoplayer:1.0.0")
             }
         }
 

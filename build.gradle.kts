@@ -27,7 +27,7 @@ allprojects {
             signAllPublications()
             pom {
                 group = "io.github.joesteven"
-                version = "1.0.0"
+                version = "1.0.1-dev01"
                 name.set("kvideoplayer")
                 description.set("Video player for Kotlin multiplatform")
                 url.set("https://github.com/JoeSteven/KMP-VideoPlayer/")
