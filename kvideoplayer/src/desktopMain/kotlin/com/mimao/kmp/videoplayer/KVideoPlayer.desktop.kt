@@ -42,7 +42,11 @@ actual class KVideoPlayer(
 
     private val eventAdapter = object : MediaPlayerEventAdapter() {
         override fun buffering(mediaPlayer: MediaPlayer?, newCache: Float) {
-            _status.value = KPlayerStatus.Buffering
+            if (newCache == 100.0f) {
+                _status.value = if (mediaPlayer?.status()?.isPlaying == true) KPlayerStatus.Playing else KPlayerStatus.Paused
+            } else {
+                _status.value = KPlayerStatus.Buffering
+            }
         }
 
         override fun playing(mediaPlayer: MediaPlayer?) {
@@ -121,6 +125,7 @@ actual class KVideoPlayer(
 
     actual fun seekTo(position: Long) {
         player.controls()?.setTime(position)
+        _currentTime.value = position
     }
 
     actual fun setMute(mute: Boolean) {
