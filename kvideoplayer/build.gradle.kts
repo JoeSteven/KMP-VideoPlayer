@@ -51,14 +51,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.Kotlin.coroutines}")
             }
         }
 
         val androidMain by getting {
             dependencies {
-                api("com.google.android.exoplayer:exoplayer:2.18.0")
-                api("com.google.android.exoplayer:extension-okhttp:2.18.0")
+                api("com.google.android.exoplayer:exoplayer:${Versions.exoPlayer}")
+                api("com.google.android.exoplayer:extension-okhttp:${Versions.exoPlayer}")
             }
         }
         val desktopMain by getting {
