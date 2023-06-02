@@ -57,8 +57,8 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                api("com.google.android.exoplayer:exoplayer:${Versions.exoPlayer}")
-                api("com.google.android.exoplayer:extension-okhttp:${Versions.exoPlayer}")
+                api("androidx.media3:media3-exoplayer:${Versions.media3}")
+                api("androidx.media3:media3-ui:${Versions.media3}")
             }
         }
         val desktopMain by getting {

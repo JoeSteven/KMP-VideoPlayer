@@ -15,6 +15,6 @@ object Versions {
 
     const val android_material3 = "1.0.0-alpha13"
 
-    const val exoPlayer = "2.18.1"
+    const val media3 = "1.0.2"
     const val vlcj = "4.7.1"
 }
