@@ -1,11 +1,11 @@
 import org.gradle.api.JavaVersion
 
 object Versions {
-    const val compose = "1.2.0"
+    const val compose = "1.4.0"
 
     object Kotlin {
-        const val lang = "1.7.20"
-        const val coroutines = "1.6.4"
+        const val lang = "1.8.20"
+        const val coroutines = "1.7.1"
     }
 
     object Java {
@@ -15,6 +15,6 @@ object Versions {
 
     const val android_material3 = "1.0.0-alpha13"
 
-    const val exoPlayer = "2.18.1"
+    const val media3 = "1.0.2"
     const val vlcj = "4.7.1"
 }

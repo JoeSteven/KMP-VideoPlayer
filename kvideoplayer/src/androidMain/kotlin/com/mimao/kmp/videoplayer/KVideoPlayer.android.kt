@@ -1,10 +1,10 @@
 package com.mimao.kmp.videoplayer
 
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ui.StyledPlayerView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 actual class KVideoPlayer(
-    private val playerView: StyledPlayerView,
+    private val playerView: PlayerView,
 ) {
     private val _status = MutableStateFlow<KPlayerStatus>(KPlayerStatus.Idle)
     actual val status: Flow<KPlayerStatus>
@@ -147,6 +147,6 @@ actual class KVideoPlayer(
     }
 
     private fun emitDuration() {
-        _duration.value = playerView?.player?.duration ?: 0
+        _duration.value = playerView.player?.duration ?: 0
     }
 }

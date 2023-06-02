@@ -4,14 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.exoplayer2.ui.StyledPlayerView
+import androidx.media3.ui.PlayerView
 import com.mimao.kmp.videoplayer.KVideoPlayer
 
 @Composable
 actual fun rememberVideoPlayerState(): VideoPlayerState {
     val context = LocalContext.current
     return remember {
-        val view = StyledPlayerView(context)
+        val view = PlayerView(context)
         VideoPlayerState(
             player = KVideoPlayer(view),
             content = {

@@ -13,11 +13,12 @@ dependencies {
 }
 
 android {
-    compileSdk = 32
+    namespace = "me.mimao.android"
+    compileSdk = 33
     defaultConfig {
         applicationId = "me.mimao.android"
         minSdk = 24
-        targetSdk = 32
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
     }
